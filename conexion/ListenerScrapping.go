@@ -173,7 +173,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery func(int) 
 			//Guardar nuevas ofertas en la db
 			log.Println("Creando la nueva oferta turística...")
 			queryCrearOferta := fmt.Sprintf("insert into ofertas_turisticas (nombre, precio, fecha_inicio, fecha_final, id_proveedor, id_comuna)"+
-				"values ('%s', %d, '%s', '%s', %d, %d)",
+				"values ('%s', %s, '%s', '%s', %d, %d)",
 				oferta.Nombre, oferta.Precio, oferta.FechaInicio, oferta.FechaFinal, idProveedor, idComuna)
 			err = dbApp.QueryRow(queryCrearOferta).Err()
 			if err != nil {
