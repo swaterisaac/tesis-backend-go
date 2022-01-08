@@ -1,3 +1,4 @@
 #Carpetas de volúmenes
 .env.*
 .env
+vendor
