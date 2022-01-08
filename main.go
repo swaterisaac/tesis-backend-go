@@ -19,7 +19,7 @@ func init() {
 			fmt.Println("No se encontró el .env", r)
 		}
 	}()
-	err := godotenv.Load(".env.dev")
+	err := godotenv.Load(".env.heroku")
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +51,7 @@ func main() {
 	go conexion.ListenerGeneral(db, dbScrappingPrueba, conexion.QueryScrappingPrueba, conexion.TraductorScrappingGeneral, "prueba")
 
 	//elasticsearch
-	cloudID := os.Getenv("ELASTICSEARCH_CLOUD_ID")
+	cloudID := os.Getenv("ELASTICSEARCH_CLIENT_ID")
 	apiKey := os.Getenv("ELASTICSEARCH_API_KEY")
 
 	es, err := elasticsearch.NewDefaultClient()
@@ -66,7 +66,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	/*
+		//Para debugear elasticsearch, descomentar esto
+		modelos, err := busquedas.ObtenerOfertasRecomendacion(db, es, 3, 6, 1)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%+v", modelos)
+	*/
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(cors.New(cors.Config{

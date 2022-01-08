@@ -19,7 +19,6 @@ func isSSL() string {
 
 //Inicialización para cargar archivo .env (Variables de entorno)
 func ObtenerEntornoConexion() string {
-	fmt.Println(isSSL())
 	return fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=%s",
 		os.Getenv("PGDB_HOST"),

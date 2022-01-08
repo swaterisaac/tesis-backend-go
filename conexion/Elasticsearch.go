@@ -39,7 +39,7 @@ func CastearRespuesta(r map[string]interface{}) []modelos.RespuestaElastic {
 		respuesta.Descriptor = hit.(map[string]interface{})["_source"].(map[string]interface{})["descriptor"].(string)
 		respuesta.FechaFinal = hit.(map[string]interface{})["_source"].(map[string]interface{})["fecha_final"].(string)
 		respuesta.FechaInicio = hit.(map[string]interface{})["_source"].(map[string]interface{})["fecha_inicio"].(string)
-		respuesta.Precio = hit.(map[string]interface{})["_source"].(map[string]interface{})["precio"].(float64)
+		respuesta.Precio = hit.(map[string]interface{})["_source"].(map[string]interface{})["precio"].(string)
 		respuesta.Score = hit.(map[string]interface{})["_score"].(float64)
 		consideraciones := hit.(map[string]interface{})["_source"].(map[string]interface{})["consideraciones"].([]interface{})
 		//Castear arreglo de []interfaz{} a []string
@@ -57,7 +57,7 @@ func CastearRespuesta(r map[string]interface{}) []modelos.RespuestaElastic {
 func ObtenerRespuestaStatus(res *esapi.Response, r map[string]interface{}) modelos.RespuestaStatus {
 	var status modelos.RespuestaStatus
 	status.Code = res.Status()
-	status.Hits = int(r["hits"].(map[string]interface{})["total"].(float64))
+	status.Hits = int(r["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64))
 	status.Took = int(r["took"].(float64))
 	return status
 }
