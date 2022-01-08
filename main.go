@@ -19,7 +19,7 @@ func init() {
 			fmt.Println("No se encontró el .env", r)
 		}
 	}()
-	err := godotenv.Load(".env.heroku")
+	err := godotenv.Load(".env.dev")
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +48,8 @@ func main() {
 	defer dbScrappingPrueba.Close()
 
 	//Listener para scrapping
-	go conexion.ListenerGeneral(db, dbScrappingPrueba, conexion.QueryScrappingPrueba, conexion.TraductorScrappingGeneral, "prueba")
+	//go conexion.ListenerGeneral(db, dbScrappingPrueba, conexion.QueryScrappingPrueba, conexion.TraductorScrappingGeneral, conexion.QueryScrappingPruebaCreacion, "prueba")
+	go conexion.ListenerGeneral(db, dbScrappingPrueba, conexion.QueryScrappingChilepass, conexion.TraductorScrappingChilepass, conexion.QueryScrappingChilepassCreacion, "chilepass")
 
 	//elasticsearch
 	cloudID := os.Getenv("ELASTICSEARCH_CLIENT_ID")

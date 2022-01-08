@@ -5,15 +5,35 @@ import (
 	"tesis/modelos"
 )
 
-func TraductorScrappingGeneral(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuristica, error) {
+func TraductorScrappingGeneral(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuristicaScrapping, error) {
 
-	var ofertas []modelos.OfertaTuristica
+	var ofertas []modelos.OfertaTuristicaScrapping
 
 	for rows.Next() {
-		var oferta modelos.OfertaTuristica
+		var oferta modelos.OfertaTuristicaScrapping
 		if err := rows.Scan(&oferta.ID, &oferta.Comuna, &oferta.FechaFinal,
 			&oferta.FechaInicio, &oferta.Nombre, &oferta.Precio,
 			&oferta.Proveedor, &oferta.Region); err != nil {
+			return ofertas, err
+		}
+		ofertas = append(ofertas, oferta)
+	}
+
+	if err := rows.Err(); err != nil {
+		return ofertas, err
+	}
+
+	return ofertas, nil
+}
+
+func TraductorScrappingChilepass(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuristicaScrapping, error) {
+
+	var ofertas []modelos.OfertaTuristicaScrapping
+
+	for rows.Next() {
+		var oferta modelos.OfertaTuristicaScrapping
+		if err := rows.Scan(&oferta.ID, &oferta.Nombre, &oferta.IdComuna, &oferta.FechaInicio,
+			&oferta.Precio, &oferta.IdProveedor, &oferta.Ubicacion); err != nil {
 			return ofertas, err
 		}
 		ofertas = append(ofertas, oferta)
