@@ -8,7 +8,7 @@ require github.com/lib/pq v1.10.3
 require github.com/joho/godotenv v1.4.0
 
 require (
-	github.com/elastic/go-elasticsearch/v6 v6.8.2
+	github.com/elastic/go-elasticsearch/v7 v7.16.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/validator/v10 v10.9.0

@@ -9,7 +9,7 @@ import (
 	"tesis/busquedas"
 	"tesis/modelos"
 
-	"github.com/elastic/go-elasticsearch/v6"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/gin-gonic/gin"
 )
 

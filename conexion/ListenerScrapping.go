@@ -12,8 +12,8 @@ import (
 type traductor func(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuristica, error)
 
 func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery func(int) string, funcionTraductor traductor, nombreDBScrapping string) {
-	const segundosDetenerError = 5
-	const segundosDetenerFinal = 120
+	const segundosDetenerError = 120
+	const segundosDetenerFinal = 240
 	for {
 		//¿Existe la tupla de ese scraping?
 		var existeTabla bool

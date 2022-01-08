@@ -1,2 +1,3 @@
 #Carpetas de volúmenes
-.env
+.dev.env
+.heroku.env

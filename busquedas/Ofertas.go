@@ -7,7 +7,7 @@ import (
 	"tesis/modelos"
 	"tesis/query"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v6"
+	elasticsearch "github.com/elastic/go-elasticsearch/v7"
 )
 
 /*

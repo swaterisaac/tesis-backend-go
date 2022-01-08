@@ -1,16 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"tesis/conexion"
 	"tesis/enrutador"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v6"
+	elasticsearch "github.com/elastic/go-elasticsearch/v7"
 	cors "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
+func init() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("No se encontró el .env", r)
+		}
+	}()
+	err := godotenv.Load(".env.dev")
+	if err != nil {
+		panic(err)
+	}
+}
 func main() {
 
 	//Puerto de heroku
@@ -19,28 +32,37 @@ func main() {
 		port = "3632"
 	}
 
-	//Conexión base de datos aplicación
+	//---------------------Conexión base de datos principal de la aplicación--------------//
 	db, err := conexion.ConexionDb(conexion.ObtenerEntornoConexion())
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
+	//-----------------------------------------------------------------------------------//
+	//---------------------Conexión base de datos de Scraping Prueba---------------------//
 
-	//Conexión base de datos de Scraping Prueba.
-	/*
-		dbScrappingPrueba, err := conexion.ConexionDb(conexion.ObtenerConexionScrappingPrueba())
-		if err != nil {
-			panic(err)
-		}
-		defer dbScrappingPrueba.Close()
-	*/
+	dbScrappingPrueba, err := conexion.ConexionDb(conexion.ObtenerConexionScrappingPrueba())
+	if err != nil {
+		panic(err)
+	}
+	defer dbScrappingPrueba.Close()
 
 	//Listener para scrapping
-	//conexion.ListenerGeneral(db, dbScrappingPrueba, conexion.QueryScrappingPrueba, conexion.TraductorScrappingGeneral, "prueba")
+	go conexion.ListenerGeneral(db, dbScrappingPrueba, conexion.QueryScrappingPrueba, conexion.TraductorScrappingGeneral, "prueba")
 
 	//elasticsearch
+	cloudID := os.Getenv("ELASTICSEARCH_CLOUD_ID")
+	apiKey := os.Getenv("ELASTICSEARCH_API_KEY")
 
 	es, err := elasticsearch.NewDefaultClient()
+	if cloudID != "" && apiKey != "" {
+		cfg := elasticsearch.Config{
+			CloudID: cloudID,
+			APIKey:  apiKey,
+		}
+		es, err = elasticsearch.NewClient(cfg)
+	}
+
 	if err != nil {
 		panic(err)
 	}

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"tesis/modelos"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v6"
-	"github.com/elastic/go-elasticsearch/v6/esapi"
+	elasticsearch "github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
 
 func BuscarRecomendacion(es *elasticsearch.Client, query map[string]interface{}) (*esapi.Response, map[string]interface{}, error) {
