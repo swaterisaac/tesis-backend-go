@@ -36,7 +36,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 		if !existeTabla {
 			log.Printf("No existe la tupla %s, creando...\n", nombreDBScrapping)
 			queryCrearTupla := fmt.Sprintf("INSERT INTO scrapings(nombredb) values ('%s')", nombreDBScrapping)
-			err := dbApp.QueryRow(queryCrearTupla).Err()
+			err := dbApp.QueryRow(queryCrearTupla).Scan(&auxScan)
 			if err != nil {
 				//TODO: Repetir en loop este error
 				log.Println("Hay un error al crear la nueva tupla\nError: ", err)
