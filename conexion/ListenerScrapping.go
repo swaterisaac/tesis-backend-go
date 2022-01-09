@@ -185,10 +185,12 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 			//Guardar nuevas ofertas en la db
 			log.Println("Creando la nueva oferta turística...")
 			queryCrearOferta := funcionCreacion(oferta)
-			err = dbApp.QueryRow(queryCrearOferta).Err()
+			var idNuevaOferta int
+			err = dbApp.QueryRow(queryCrearOferta).Scan(&idNuevaOferta)
 			if err != nil {
 				//TODO: Repetir en loop este error.
 				log.Println("Hubo un error creando la nueva oferta turística\nError: ", err)
+				//--------------------------Actualizar ID Scrapping-----------------------------------//
 				ultimoId := ofertas[len(ofertas)-1].ID
 				queryActualizarTupla := queryActualizarScrapping(ultimoId, nombreDBScrapping)
 				err = dbApp.QueryRow(queryActualizarTupla).Err()
@@ -197,7 +199,25 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 					time.Sleep(segundosDetenerError * time.Second)
 					continue
 				}
+				//------------------------------------------------------------------------------------//
 				time.Sleep(segundosDetenerError * time.Second)
+				continue
+			}
+			queryAsignarConsideracion := fmt.Sprintf("INSERT INTO oferta_consideraciones (id_oferta, id_consideracion) VALUES (%d, 1) returning id", idNuevaOferta)
+			err = dbApp.QueryRow(queryAsignarConsideracion).Scan()
+			if err != nil {
+				log.Println("Ha habido un error relacionando la oferta con la consideración: ", err)
+				time.Sleep(segundosDetenerError * time.Second)
+				//--------------------------Actualizar ID Scrapping-----------------------------------//
+				ultimoId := ofertas[len(ofertas)-1].ID
+				queryActualizarTupla := queryActualizarScrapping(ultimoId, nombreDBScrapping)
+				err = dbApp.QueryRow(queryActualizarTupla).Err()
+				if err != nil {
+					log.Println("Hubo un error actualizando el valor de la última tupla\nError: ", err)
+					time.Sleep(segundosDetenerError * time.Second)
+					continue
+				}
+				//------------------------------------------------------------------------------------//
 				continue
 			}
 			log.Println("Se creó una nueva oferta turística!")
@@ -206,6 +226,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 		log.Println("Se han actualizado todas las tuplas nuevas!")
 		log.Println("Actualizando el último valor de la tupla")
 		//Actualizar valor de la ultima tupla al último id de las ofertas
+		//--------------------------Actualizar ID Scrapping-----------------------------------//
 		ultimoId := ofertas[len(ofertas)-1].ID
 		queryActualizarTupla := queryActualizarScrapping(ultimoId, nombreDBScrapping)
 		err = dbApp.QueryRow(queryActualizarTupla).Err()
@@ -215,6 +236,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 			continue
 		}
 		log.Println("Se ha actualizado el valor de la última tupla")
+		//------------------------------------------------------------------------------------//
 		time.Sleep(segundosDetenerFinal * time.Second)
 	}
 }
@@ -229,9 +251,9 @@ func QueryScrappingPrueba(ultimaTupla int) string {
 }
 
 func QueryScrappingPruebaCreacion(oferta modelos.OfertaTuristicaScrapping) string {
-	queryCrearOferta := fmt.Sprintf("insert into ofertas_turisticas (nombre, precio, fecha_inicio, fecha_final, id_proveedor, id_comuna)"+
-		"values ('%s', %v, '%s', '%s', %d, %d)",
-		oferta.Nombre, oferta.Precio, oferta.FechaInicio, oferta.FechaFinal, oferta.IdProveedor, oferta.IdComuna)
+	queryCrearOferta := fmt.Sprintf("insert into ofertas_turisticas (nombre, precio, fecha_inicio, fecha_final, id_proveedor, id_comuna) "+
+		"values ('%s', '%s', '%s', '%s', %d, %d) returning id",
+		oferta.Nombre, oferta.Precio.String, oferta.FechaInicio, oferta.FechaFinal.String, oferta.IdProveedor, oferta.IdComuna)
 	return queryCrearOferta
 }
 
@@ -247,9 +269,9 @@ func QueryScrappingChilepass(ultimaTupla int) string {
 }
 
 func QueryScrappingChilepassCreacion(oferta modelos.OfertaTuristicaScrapping) string {
-	queryCrearOferta := fmt.Sprintf("insert into ofertas_turisticas (nombre, precio, fecha_inicio, id_proveedor, id_comuna, ubicacion)"+
-		"values ('%s', '%v', '%s', %d, %d, '%v')",
-		oferta.Nombre, oferta.Precio, oferta.FechaInicio, oferta.IdProveedor, oferta.IdComuna, oferta.Ubicacion)
+	queryCrearOferta := fmt.Sprintf("insert into ofertas_turisticas (nombre, precio, fecha_inicio, id_proveedor, id_comuna, ubicacion) "+
+		"values ('%s', '%s', '%s', %d, %d, '%s') returning id",
+		oferta.Nombre, oferta.Precio.String, oferta.FechaInicio, oferta.IdProveedor, oferta.IdComuna, oferta.Ubicacion.String)
 	return queryCrearOferta
 }
 

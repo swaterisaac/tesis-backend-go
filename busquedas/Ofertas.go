@@ -17,12 +17,12 @@ Código 500: No se pudo recuperar la oferta
 */
 func ObtenerOfertaPorId(db *sql.DB, id int) (modelos.OfertaTuristica, error, int) {
 	queryOferta := fmt.Sprintf(
-		"SELECT ot.id, ot.nombre, ot.fecha_inicio, ot.fecha_final, ot.precio, ot.url_imagen, r.nombre, r.url_imagen, c.nombre, p.nombre, p.web, p.correo, p.telefono "+
+		"SELECT ot.id, ot.nombre, ot.fecha_inicio, ot.fecha_final, ot.precio, ot.url_imagen, ot.ubicacion, r.nombre, r.url_imagen, c.nombre, p.nombre, p.web, p.correo, p.telefono "+
 			"FROM ofertas_turisticas ot, comunas c, proveedores p, regiones r "+
 			"WHERE ot.id = %d AND ot.id_comuna = c.id AND c.id_region = r.id AND p.id = ot.id_proveedor", id)
 	var oferta modelos.OfertaTuristica
 	err := db.QueryRow(queryOferta).Scan(&oferta.ID, &oferta.Nombre,
-		&oferta.FechaInicio, &oferta.FechaFinal, &oferta.Precio, &oferta.ImagenOferta, &oferta.Region, &oferta.ImagenRegion, &oferta.Comuna, &oferta.Proveedor,
+		&oferta.FechaInicio, &oferta.FechaFinal, &oferta.Precio, &oferta.ImagenOferta, &oferta.Ubicacion, &oferta.Region, &oferta.ImagenRegion, &oferta.Comuna, &oferta.Proveedor,
 		&oferta.Pagina, &oferta.Correo, &oferta.Telefono)
 	if err == sql.ErrNoRows {
 		return oferta, err, 404

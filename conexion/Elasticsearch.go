@@ -37,7 +37,7 @@ func CastearRespuesta(r map[string]interface{}) []modelos.RespuestaElastic {
 		respuesta.Id = fmt.Sprintf("%v", hit.(map[string]interface{})["_id"])
 		respuesta.IdEnDb = hit.(map[string]interface{})["_source"].(map[string]interface{})["idEnDb"].(float64)
 		respuesta.Descriptor = hit.(map[string]interface{})["_source"].(map[string]interface{})["descriptor"].(string)
-		respuesta.FechaFinal = hit.(map[string]interface{})["_source"].(map[string]interface{})["fecha_final"].(string)
+		//respuesta.FechaFinal = hit.(map[string]interface{})["_source"].(map[string]interface{})["fecha_final"].(string)
 		respuesta.FechaInicio = hit.(map[string]interface{})["_source"].(map[string]interface{})["fecha_inicio"].(string)
 		respuesta.Precio = hit.(map[string]interface{})["_source"].(map[string]interface{})["precio"].(string)
 		respuesta.Score = hit.(map[string]interface{})["_score"].(float64)

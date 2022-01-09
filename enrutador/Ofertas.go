@@ -2,7 +2,6 @@ package enrutador
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -129,6 +128,7 @@ func ObtenerOfertasQuery(c *gin.Context, db *sql.DB, es *elasticsearch.Client) {
 		return
 	}
 	if err != nil {
+		log.Println("Error: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg":   "Error de servidor",
 			"error": err,
@@ -137,6 +137,7 @@ func ObtenerOfertasQuery(c *gin.Context, db *sql.DB, es *elasticsearch.Client) {
 	}
 	ofertas, err := busquedas.ObtenerOfertasQuery(db, es, id, query, tamanioNum, paginaNum)
 	if err != nil {
+		log.Println("Error: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
@@ -150,7 +151,6 @@ func ObtenerOfertasQuery(c *gin.Context, db *sql.DB, es *elasticsearch.Client) {
 	}
 	var ofertasFiltradas []modelos.OfertaTuristica
 	if existeFiltro {
-		fmt.Println("ALO")
 		for _, oferta := range ofertas {
 			if (oferta.Comuna == filtroComuna || filtroComuna == "") && (oferta.Region == filtroRegion || filtroRegion == "") && (oferta.Proveedor == filtroProveedor || filtroProveedor == "") {
 				ofertasFiltradas = append(ofertasFiltradas, oferta)
