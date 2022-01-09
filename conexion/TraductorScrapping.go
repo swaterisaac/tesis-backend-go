@@ -6,7 +6,7 @@ import (
 )
 
 func TraductorScrappingGeneral(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuristicaScrapping, error) {
-
+	var auxScan sql.NullString
 	var ofertas []modelos.OfertaTuristicaScrapping
 
 	for rows.Next() {
@@ -19,7 +19,7 @@ func TraductorScrappingGeneral(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuri
 		ofertas = append(ofertas, oferta)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err := rows.Scan(&auxScan); err != nil {
 		return ofertas, err
 	}
 
@@ -27,7 +27,7 @@ func TraductorScrappingGeneral(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuri
 }
 
 func TraductorScrappingChilepass(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTuristicaScrapping, error) {
-
+	var auxScan sql.NullString
 	var ofertas []modelos.OfertaTuristicaScrapping
 
 	for rows.Next() {
@@ -39,7 +39,7 @@ func TraductorScrappingChilepass(db *sql.DB, rows *sql.Rows) ([]modelos.OfertaTu
 		ofertas = append(ofertas, oferta)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err := rows.Scan(&auxScan); err != nil {
 		return ofertas, err
 	}
 	return ofertas, nil
