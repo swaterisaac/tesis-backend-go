@@ -14,7 +14,7 @@ type queryNormal func(int) string
 type queryCreacion func(modelos.OfertaTuristicaScrapping) string
 
 func queryActualizarScrapping(ultimoId int, nombreDBScrapping string) string {
-	return fmt.Sprintf("UPDATE scrapings SET ultimatupla = %d WHERE nombredb = '%s'", ultimoId, nombreDBScrapping)
+	return fmt.Sprintf("UPDATE scrapings SET ultimatupla = %d WHERE nombredb = '%s' returning id", ultimoId, nombreDBScrapping)
 }
 
 func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNormal, funcionTraductor traductor, funcionCreacion queryCreacion, nombreDBScrapping string) {
@@ -36,7 +36,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 		if !existeTabla {
 			log.Printf("No existe la tupla %s, creando...\n", nombreDBScrapping)
 			queryCrearTupla := fmt.Sprintf("INSERT INTO scrapings(nombredb) values ('%s')", nombreDBScrapping)
-			err := dbApp.QueryRow(queryCrearTupla).Scan(&auxScan)
+			err := dbApp.QueryRow(queryCrearTupla).Err()
 			if err != nil {
 				//TODO: Repetir en loop este error
 				log.Println("Hay un error al crear la nueva tupla\nError: ", err)

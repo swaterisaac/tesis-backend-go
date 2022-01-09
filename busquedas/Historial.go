@@ -30,11 +30,11 @@ func ObtenerHistorialBusquedaUsuario(db *sql.DB, idUsuario int) ([]modelos.Histo
 		"FROM usuarios u, historial_busquedas hb "+
 		"WHERE u.id = %d and hb.id_usuario = u.id", idUsuario)
 	rows, err := db.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-	var auxScan sql.NullString
+
+	defer rows.Close()
 	var historiales []modelos.Historial
 	for rows.Next() {
 		var historial modelos.Historial
@@ -44,7 +44,7 @@ func ObtenerHistorialBusquedaUsuario(db *sql.DB, idUsuario int) ([]modelos.Histo
 		historiales = append(historiales, historial)
 
 	}
-	if err := rows.Scan(&auxScan); err != nil {
+	if err := rows.Err(); err != nil {
 		return historiales, err
 	}
 	return historiales, nil
@@ -71,12 +71,10 @@ func ObtenerHistorialComunaUsuario(db *sql.DB, idUsuario int, topComuna int) ([]
 		"WHERE u.id = %d and hc.id_usuario = u.id and c.id = hc.id_comuna "+
 		"ORDER BY hc.frecuencia DESC LIMIT %d", idUsuario, topComuna)
 	rows, err := db.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-
-	var auxScan sql.NullString
+	defer rows.Close()
 	var historiales []modelos.Historial
 
 	for rows.Next() {
@@ -87,7 +85,7 @@ func ObtenerHistorialComunaUsuario(db *sql.DB, idUsuario int, topComuna int) ([]
 		historiales = append(historiales, historial)
 	}
 
-	if err := rows.Scan(&auxScan); err != nil {
+	if err := rows.Err(); err != nil {
 		return historiales, err
 	}
 
@@ -110,17 +108,15 @@ Descripción: Recopila el historial de las regiones de las ofertas turísticas q
 usuario específico.
 */
 func ObtenerHistorialRegionUsuario(db *sql.DB, idUsuario int, topRegion int) ([]modelos.Historial, error) {
-	var auxScan sql.NullString
 	query := fmt.Sprintf("SELECT r.nombre, hr.frecuencia "+
 		"FROM usuarios u, historial_regiones hr, regiones r "+
 		"WHERE u.id = %d and hr.id_usuario = u.id and r.id = hr.id_region "+
 		"ORDER BY hr.frecuencia DESC LIMIT %d", idUsuario, topRegion)
 	rows, err := db.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-
+	defer rows.Close()
 	var historiales []modelos.Historial
 
 	for rows.Next() {
@@ -131,7 +127,7 @@ func ObtenerHistorialRegionUsuario(db *sql.DB, idUsuario int, topRegion int) ([]
 		historiales = append(historiales, historial)
 	}
 
-	if err := rows.Scan(&auxScan); err != nil {
+	if err := rows.Err(); err != nil {
 		return historiales, err
 	}
 
@@ -159,12 +155,10 @@ func ObtenerHistorialOfertasUsuario(db *sql.DB, idUsuario int, topOfertas int) (
 		"WHERE u.id = %d and ho.id_usuario = u.id and ot.id = ho.id_oferta "+
 		"ORDER BY ho.frecuencia DESC LIMIT %d", idUsuario, topOfertas)
 	rows, err := db.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-
-	var auxScan sql.NullString
+	defer rows.Close()
 	var historiales []modelos.Historial
 
 	for rows.Next() {
@@ -175,7 +169,7 @@ func ObtenerHistorialOfertasUsuario(db *sql.DB, idUsuario int, topOfertas int) (
 		historiales = append(historiales, historial)
 	}
 
-	if err := rows.Scan(&auxScan); err != nil {
+	if err := rows.Err(); err != nil {
 		return historiales, err
 	}
 
@@ -192,7 +186,7 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 	if err != nil {
 		return http.StatusInternalServerError
 	}
-	var auxScan sql.NullString
+
 	if cantidadBusqueda >= limiteBusquedas {
 		var idBusquedaAntigua int
 		queryBusquedaAntigua := fmt.Sprintf("SELECT hb.id "+
@@ -204,7 +198,7 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 		}
 
 		queryBorrarBusqueda := fmt.Sprintf("DELETE FROM historial_busquedas hb WHERE hb.id = %d", idBusquedaAntigua)
-		if err = db.QueryRow(queryBorrarBusqueda).Scan(&auxScan); err != nil {
+		if err = db.QueryRow(queryBorrarBusqueda).Err(); err != nil {
 			return http.StatusInternalServerError
 		}
 	}
@@ -212,7 +206,7 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 	queryCrearBusqueda := fmt.Sprintf("INSERT INTO historial_busquedas (consulta, frecuencia, id_usuario) "+
 		"VALUES ('%s', 1, %d)", busqueda, idUsuario)
 
-	if err := db.QueryRow(queryCrearBusqueda).Scan(&auxScan); err != nil {
+	if err := db.QueryRow(queryCrearBusqueda).Err(); err != nil {
 		return http.StatusInternalServerError
 	}
 	return http.StatusCreated
@@ -221,8 +215,6 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 //Sirve para crear historial comuna, region y oferta de manera general.
 func CrearHistorialGeneral(db *sql.DB, idUsuario int, idHistorial int, nombreTabla string, nombreForanea string) int {
 	var idExiste, frecuencia int
-	var auxScan sql.NullString
-
 	queryExiste := fmt.Sprintf("SELECT tg.id, tg.frecuencia "+
 		"FROM usuarios u, %s tg "+
 		"WHERE u.id = %d AND u.id = tg.id_usuario AND tg.%s = %d", nombreTabla, idUsuario, nombreForanea, idHistorial)
@@ -231,7 +223,7 @@ func CrearHistorialGeneral(db *sql.DB, idUsuario int, idHistorial int, nombreTab
 	//Caso crear nueva tupla
 	if err == sql.ErrNoRows {
 		queryCrearTupla := fmt.Sprintf("INSERT INTO %s (frecuencia, id_usuario, %s) VALUES (1, %d, %d)", nombreTabla, nombreForanea, idUsuario, idHistorial)
-		if err = db.QueryRow(queryCrearTupla).Scan(&auxScan); err != nil {
+		if err = db.QueryRow(queryCrearTupla).Err(); err != nil {
 
 			return http.StatusInternalServerError
 		}
@@ -245,7 +237,7 @@ func CrearHistorialGeneral(db *sql.DB, idUsuario int, idHistorial int, nombreTab
 	//Caso actualizar la antigua tupla
 	frecuencia += 1
 	queryActualizar := fmt.Sprintf("UPDATE %s SET frecuencia=%d WHERE id = %d", nombreTabla, frecuencia, idExiste)
-	err = db.QueryRow(queryActualizar).Scan(&auxScan)
+	err = db.QueryRow(queryActualizar).Err()
 
 	if err != nil {
 		return http.StatusInternalServerError

@@ -20,14 +20,11 @@ Descripción:
 Retorna todos los usuarios de la DB en un array de struct de Usuario.
 */
 func ObtenerUsuarios(db *sql.DB) ([]modelos.Usuario, error) {
-	var auxScan sql.NullString
-
 	rows, err := db.Query("SELECT * FROM usuarios")
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-
+	defer rows.Close()
 	var usuarios []modelos.Usuario
 
 	for rows.Next() {
@@ -38,7 +35,7 @@ func ObtenerUsuarios(db *sql.DB) ([]modelos.Usuario, error) {
 		}
 		usuarios = append(usuarios, usuario)
 	}
-	if err = rows.Scan(&auxScan); err != nil {
+	if err = rows.Err(); err != nil {
 		return usuarios, err
 	}
 	return usuarios, nil
@@ -59,22 +56,21 @@ Descripción:
 En base a un usuario específico, retorna la comuna y región a la que pertenece.
 */
 func ObtenerUbicacionUsuario(db *sql.DB, idUsuario int) (string, string, error) {
-	var auxScan sql.NullString
 	query := fmt.Sprintf("SELECT r.nombre, c.nombre "+
 		"FROM usuarios u, regiones r, comunas c "+
 		"WHERE u.id = %d and c.id = u.id_comuna and r.id = c.id_region", idUsuario)
 	rows, err := db.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return "", "", err
 	}
+	defer rows.Close()
 	comuna, region := "", ""
 	for rows.Next() {
 		if err := rows.Scan(&region, &comuna); err != nil {
 			return comuna, region, err
 		}
 	}
-	if err = rows.Scan(&auxScan); err != nil {
+	if err = rows.Err(); err != nil {
 		return comuna, region, err
 	}
 
@@ -95,16 +91,14 @@ Descripción:
 En base a un usuario específico retorna todas las consideraciones médicas asociadas.
 */
 func ObtenerConsideracionesMedicasUsuario(db *sql.DB, idUsuario int) ([]string, error) {
-	var auxScan sql.NullString
 	query := fmt.Sprintf("SELECT cm.nombre "+
 		"FROM usuarios u, consideraciones_medicas cm , usuario_consideraciones uc "+
 		"WHERE u.id = %d and uc.id_usuario = u.id and uc.id_consideracion = cm.id", idUsuario)
 	rows, err := db.Query(query)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-
+	defer rows.Close()
 	var consideraciones []string
 
 	for rows.Next() {
@@ -115,7 +109,7 @@ func ObtenerConsideracionesMedicasUsuario(db *sql.DB, idUsuario int) ([]string, 
 		consideraciones = append(consideraciones, consideracion)
 	}
 
-	if err := rows.Scan(&auxScan); err != nil {
+	if err := rows.Err(); err != nil {
 		return consideraciones, err
 	}
 
@@ -169,7 +163,6 @@ func ObtenerUsuarioPorCorreo(db *sql.DB, correo string) (modelos.UsuarioApp, err
 }
 
 func CrearUsuario(db *sql.DB, usuario modelos.Usuario) int {
-	var auxScan sql.NullString
 	queryUsuario := fmt.Sprintf("INSERT INTO usuarios (nombre, correo, fecha_nacimiento, id_comuna) "+
 		"VALUES ('%s', '%s', '%s', %d) RETURNING id", usuario.Nombre, usuario.Correo, usuario.FechaNacimiento, usuario.IdComuna)
 	var idUsuario int
@@ -180,7 +173,7 @@ func CrearUsuario(db *sql.DB, usuario modelos.Usuario) int {
 	for _, idConsideracion := range usuario.Consideraciones {
 		queryConsideraciones := fmt.Sprintf("INSERT INTO usuario_consideraciones (id_usuario, id_consideracion) "+
 			"VALUES (%d, %d)", idUsuario, idConsideracion)
-		if err := db.QueryRow(queryConsideraciones).Scan(&auxScan); err != nil {
+		if err := db.QueryRow(queryConsideraciones).Err(); err != nil {
 			return http.StatusInternalServerError
 		}
 	}
@@ -188,22 +181,19 @@ func CrearUsuario(db *sql.DB, usuario modelos.Usuario) int {
 }
 
 func agregarConsideracionUsuario(db *sql.DB, idUsuario int, idConsideracion int) error {
-	var auxScan sql.NullString
 	query := fmt.Sprintf("INSERT INTO usuario_consideraciones (id_usuario, id_consideracion) "+
 		"VALUES (%d, %d)", idUsuario, idConsideracion)
-	err := db.QueryRow(query).Scan(&auxScan)
+	err := db.QueryRow(query).Err()
 	return err
 }
 
 func borrarConsideracionesUsuario(db *sql.DB, idUsuario int) error {
-	var auxScan sql.NullString
 	query := fmt.Sprintf("DELETE FROM usuario_consideraciones WHERE id_usuario = %d", idUsuario)
-	err := db.QueryRow(query).Scan(&auxScan)
+	err := db.QueryRow(query).Err()
 	return err
 }
 
 func EditarUsuario(db *sql.DB, usuario modelos.Usuario) error {
-	var auxScan sql.NullString
 	camposActualizar := ""
 	primerCampo := false
 	if usuario.FechaNacimiento != "" {
@@ -226,7 +216,7 @@ func EditarUsuario(db *sql.DB, usuario modelos.Usuario) error {
 	if camposActualizar != "" {
 		fmt.Println("AQUI: ", camposActualizar)
 		queryActualizar := fmt.Sprintf("UPDATE usuarios SET %s WHERE id = %d", camposActualizar, usuario.ID)
-		err := db.QueryRow(queryActualizar).Scan(&auxScan)
+		err := db.QueryRow(queryActualizar).Err()
 		if err != nil {
 			return err
 		}
