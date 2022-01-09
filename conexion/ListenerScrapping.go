@@ -204,7 +204,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 				continue
 			}
 			queryAsignarConsideracion := fmt.Sprintf("INSERT INTO oferta_consideraciones (id_oferta, id_consideracion) VALUES (%d, 1) returning id", idNuevaOferta)
-			err = dbApp.QueryRow(queryAsignarConsideracion).Scan()
+			err = dbApp.QueryRow(queryAsignarConsideracion).Err()
 			if err != nil {
 				log.Println("Ha habido un error relacionando la oferta con la consideración: ", err)
 				time.Sleep(segundosDetenerError * time.Second)
