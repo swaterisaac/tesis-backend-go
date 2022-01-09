@@ -20,6 +20,7 @@ func queryActualizarScrapping(ultimoId int, nombreDBScrapping string) string {
 func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNormal, funcionTraductor traductor, funcionCreacion queryCreacion, nombreDBScrapping string) {
 	const segundosDetenerError = 120
 	const segundosDetenerFinal = 240
+	var auxScan sql.NullString
 	for {
 		//¿Existe la tupla de ese scraping?
 		var existeTabla bool
@@ -193,7 +194,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 				//--------------------------Actualizar ID Scrapping-----------------------------------//
 				ultimoId := ofertas[len(ofertas)-1].ID
 				queryActualizarTupla := queryActualizarScrapping(ultimoId, nombreDBScrapping)
-				err = dbApp.QueryRow(queryActualizarTupla).Err()
+				err = dbApp.QueryRow(queryActualizarTupla).Scan(&auxScan)
 				if err != nil {
 					log.Println("Hubo un error actualizando el valor de la última tupla\nError: ", err)
 					time.Sleep(segundosDetenerError * time.Second)
@@ -204,14 +205,14 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 				continue
 			}
 			queryAsignarConsideracion := fmt.Sprintf("INSERT INTO oferta_consideraciones (id_oferta, id_consideracion) VALUES (%d, 1) returning id", idNuevaOferta)
-			err = dbApp.QueryRow(queryAsignarConsideracion).Err()
+			err = dbApp.QueryRow(queryAsignarConsideracion).Scan(&auxScan)
 			if err != nil {
 				log.Println("Ha habido un error relacionando la oferta con la consideración: ", err)
 				time.Sleep(segundosDetenerError * time.Second)
 				//--------------------------Actualizar ID Scrapping-----------------------------------//
 				ultimoId := ofertas[len(ofertas)-1].ID
 				queryActualizarTupla := queryActualizarScrapping(ultimoId, nombreDBScrapping)
-				err = dbApp.QueryRow(queryActualizarTupla).Err()
+				err = dbApp.QueryRow(queryActualizarTupla).Scan(&auxScan)
 				if err != nil {
 					log.Println("Hubo un error actualizando el valor de la última tupla\nError: ", err)
 					time.Sleep(segundosDetenerError * time.Second)
@@ -229,7 +230,7 @@ func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNorma
 		//--------------------------Actualizar ID Scrapping-----------------------------------//
 		ultimoId := ofertas[len(ofertas)-1].ID
 		queryActualizarTupla := queryActualizarScrapping(ultimoId, nombreDBScrapping)
-		err = dbApp.QueryRow(queryActualizarTupla).Err()
+		err = dbApp.QueryRow(queryActualizarTupla).Scan(&auxScan)
 		if err != nil {
 			log.Println("Hubo un error actualizando el valor de la última tupla\nError: ", err)
 			time.Sleep(segundosDetenerError * time.Second)
