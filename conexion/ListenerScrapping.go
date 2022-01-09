@@ -14,7 +14,7 @@ type queryNormal func(int) string
 type queryCreacion func(modelos.OfertaTuristicaScrapping) string
 
 func queryActualizarScrapping(ultimoId int, nombreDBScrapping string) string {
-	return fmt.Sprintf("UPDATE scrapings SET ultimatupla = %d WHERE nombredb = '%s'", ultimoId, nombreDBScrapping)
+	return fmt.Sprintf("UPDATE scrapings SET ultimatupla = %d WHERE nombredb = '%s' returning id", ultimoId, nombreDBScrapping)
 }
 
 func ListenerGeneral(dbApp *sql.DB, dbScrapping *sql.DB, funcionQuery queryNormal, funcionTraductor traductor, funcionCreacion queryCreacion, nombreDBScrapping string) {
