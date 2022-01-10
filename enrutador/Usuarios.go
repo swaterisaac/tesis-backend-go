@@ -96,7 +96,7 @@ func EditarUsuario(c *gin.Context, db *sql.DB) {
 	usuario.ID = usuarioID.ID
 
 	err = busquedas.EditarUsuario(db, usuario)
-	if err != nil {
+	if err != sql.ErrNoRows && err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 			"msg":   "Error con el servidor",

@@ -177,6 +177,7 @@ func ObtenerHistorialOfertasUsuario(db *sql.DB, idUsuario int, topOfertas int) (
 }
 
 func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
+	var auxScan sql.NullString
 	queryContar := fmt.Sprintf("SELECT COUNT(*) "+
 		"FROM usuarios u, historial_busquedas hb "+
 		"WHERE u.id = %d AND hb.id_usuario = u.id", idUsuario)
@@ -198,7 +199,7 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 		}
 
 		queryBorrarBusqueda := fmt.Sprintf("DELETE FROM historial_busquedas hb WHERE hb.id = %d", idBusquedaAntigua)
-		if err = db.QueryRow(queryBorrarBusqueda).Err(); err != nil {
+		if err = db.QueryRow(queryBorrarBusqueda).Scan(&auxScan); err != sql.ErrNoRows && err != nil {
 			return http.StatusInternalServerError
 		}
 	}
@@ -206,7 +207,7 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 	queryCrearBusqueda := fmt.Sprintf("INSERT INTO historial_busquedas (consulta, frecuencia, id_usuario) "+
 		"VALUES ('%s', 1, %d)", busqueda, idUsuario)
 
-	if err := db.QueryRow(queryCrearBusqueda).Err(); err != nil {
+	if err := db.QueryRow(queryCrearBusqueda).Scan(&auxScan); err != sql.ErrNoRows && err != nil {
 		return http.StatusInternalServerError
 	}
 	return http.StatusCreated
@@ -214,6 +215,7 @@ func CrearHistorialBusqueda(db *sql.DB, idUsuario int, busqueda string) int {
 
 //Sirve para crear historial comuna, region y oferta de manera general.
 func CrearHistorialGeneral(db *sql.DB, idUsuario int, idHistorial int, nombreTabla string, nombreForanea string) int {
+	var auxScan sql.NullString
 	var idExiste, frecuencia int
 	queryExiste := fmt.Sprintf("SELECT tg.id, tg.frecuencia "+
 		"FROM usuarios u, %s tg "+
@@ -223,7 +225,7 @@ func CrearHistorialGeneral(db *sql.DB, idUsuario int, idHistorial int, nombreTab
 	//Caso crear nueva tupla
 	if err == sql.ErrNoRows {
 		queryCrearTupla := fmt.Sprintf("INSERT INTO %s (frecuencia, id_usuario, %s) VALUES (1, %d, %d)", nombreTabla, nombreForanea, idUsuario, idHistorial)
-		if err = db.QueryRow(queryCrearTupla).Err(); err != nil {
+		if err = db.QueryRow(queryCrearTupla).Scan(&auxScan); err != sql.ErrNoRows && err != nil {
 
 			return http.StatusInternalServerError
 		}
@@ -237,9 +239,9 @@ func CrearHistorialGeneral(db *sql.DB, idUsuario int, idHistorial int, nombreTab
 	//Caso actualizar la antigua tupla
 	frecuencia += 1
 	queryActualizar := fmt.Sprintf("UPDATE %s SET frecuencia=%d WHERE id = %d", nombreTabla, frecuencia, idExiste)
-	err = db.QueryRow(queryActualizar).Err()
+	err = db.QueryRow(queryActualizar).Scan(&auxScan)
 
-	if err != nil {
+	if err != sql.ErrNoRows && err != nil {
 		return http.StatusInternalServerError
 	}
 
