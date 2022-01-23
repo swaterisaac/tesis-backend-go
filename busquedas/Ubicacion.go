@@ -7,7 +7,7 @@ import (
 )
 
 func ObtenerRegiones(db *sql.DB) ([]modelos.Region, error, int) {
-	query := fmt.Sprintf("SELECT id, nombre FROM regiones")
+	query := fmt.Sprintf("SELECT id, nombre FROM regiones ORDER BY id")
 	rows, err := db.Query(query)
 
 	defer rows.Close()
@@ -29,7 +29,7 @@ func ObtenerRegiones(db *sql.DB) ([]modelos.Region, error, int) {
 }
 
 func ObtenerComunasPorRegion(db *sql.DB, idRegion int) ([]modelos.Region, error, int) {
-	query := fmt.Sprintf("SELECT c.id, c.nombre FROM comunas c, regiones r WHERE c.id_region = %d AND r.id = c.id_region", idRegion)
+	query := fmt.Sprintf("SELECT c.id, c.nombre FROM comunas c, regiones r WHERE c.id_region = %d AND r.id = c.id_region ORDER BY c.nombre", idRegion)
 	rows, err := db.Query(query)
 	defer rows.Close()
 	if err == sql.ErrNoRows {
