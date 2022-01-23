@@ -3,6 +3,7 @@ package enrutador
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"tesis/busquedas"
@@ -19,6 +20,7 @@ func ObtenerRegiones(c *gin.Context, db *sql.DB) {
 		return
 	}
 	if err != nil {
+		log.Println("ERROR: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Hay un error con el servidor",
 		})

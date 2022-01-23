@@ -7,7 +7,7 @@ import (
 )
 
 func ObtenerRegiones(db *sql.DB) ([]modelos.Region, error, int) {
-	query := fmt.Sprintf("SELECT id, nombre FROM regiones ORDER BY id")
+	query := fmt.Sprintf("SELECT id, nombre, url_imagen FROM regiones ORDER BY id")
 	rows, err := db.Query(query)
 
 	defer rows.Close()
@@ -20,7 +20,7 @@ func ObtenerRegiones(db *sql.DB) ([]modelos.Region, error, int) {
 	var regiones []modelos.Region
 	for rows.Next() {
 		var region modelos.Region
-		if err := rows.Scan(&region.ID, &region.Nombre); err != nil {
+		if err := rows.Scan(&region.ID, &region.Nombre, &region.UrlImagen); err != nil {
 			return regiones, err, 500
 		}
 		regiones = append(regiones, region)
