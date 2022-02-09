@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"tesis/busquedas"
 
@@ -52,5 +53,9 @@ func ObtenerConsideracionesPorOferta(c *gin.Context, db *sql.DB) {
 		log.Println("Error: ", err)
 		return
 	}
+	sort.Slice(consideraciones[:], func(i, j int) bool {
+		return consideraciones[i].ID < consideraciones[j].ID
+	})
+	consideraciones = consideraciones[1:]
 	c.JSON(http.StatusOK, consideraciones)
 }
