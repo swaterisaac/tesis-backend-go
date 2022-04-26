@@ -67,6 +67,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//Builds vacíos para Heroku: 2
 	/*
 		//Para debugear elasticsearch, descomentar esto
 		modelos, err := busquedas.ObtenerOfertasRecomendacion(db, es, 3, 6, 1)
